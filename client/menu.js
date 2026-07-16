@@ -145,6 +145,10 @@
   });
 
   $('btnHowTo').addEventListener('click', () => openModal('modal-howto'));
+  $('linkCredits').addEventListener('click', (e) => {
+    e.preventDefault();
+    openModal('modal-credits');
+  });
 
   /* ---------- Code input UX ---------- */
   const codeInputs = Array.from(document.querySelectorAll('#codeInput input'));

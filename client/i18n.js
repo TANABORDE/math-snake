@@ -24,6 +24,8 @@ const DICT = {
 
     "foot.version": "เวอร์ชัน 0.1 · prototype",
     "foot.credits": "ทีมพัฒนา",
+    "credits.title": "ทีมพัฒนา",
+    "credits.sub": "รายชื่อผู้จัดทำและพัฒนาเกม Math Snake",
 
     "create.mode50":  "เกมสั้น · เหมาะเริ่มต้น",
     "create.mode100": "เกมเต็ม · สนุกจัด",
@@ -160,6 +162,8 @@ const DICT = {
 
     "foot.version": "v0.1 · prototype",
     "foot.credits": "Credits",
+    "credits.title": "Development Team",
+    "credits.sub": "Creators and Developers of Math Snake",
 
     "create.mode50":  "Quick game · great for beginners",
     "create.mode100": "Full game · maximum fun",

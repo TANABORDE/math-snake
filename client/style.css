@@ -1112,6 +1112,34 @@ body { min-height: 100dvh; }
 .over-actions { display: flex; flex-direction: column; gap: 10px; }
 
 /* ==============================
+   Credits / Development Team
+   ============================== */
+.credits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.credits-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  border-left: 3px solid var(--accent-2);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text);
+}
+.credits-list li::before {
+  content: "👤";
+  font-size: 1.1rem;
+}
+
+/* ==============================
    Responsive
    ============================== */
 @media (max-width: 480px) {
