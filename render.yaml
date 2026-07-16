@@ -1,0 +1,13 @@
+# =========================================
+# Render.com configuration — Math Snake
+# =========================================
+services:
+  - type: web
+    name: math-snake
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
