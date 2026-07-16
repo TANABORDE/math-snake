@@ -1,0 +1,43 @@
+# =========================================
+# Fly.io config — Math Snake
+# แก้ "app" เป็นชื่อของคุณเองก่อน deploy ครั้งแรก
+# (fly launch จะสร้าง app + ตั้งชื่อให้อัตโนมัติ ถ้ายังไม่มี)
+# =========================================
+
+app            = "math-snake"
+primary_region = "sin"   # Singapore — ใกล้ไทยที่สุด
+
+[build]
+
+[env]
+  NODE_ENV = "production"
+  PORT     = "3000"
+
+# ---------- HTTP + WebSocket ----------
+[http_service]
+  internal_port         = 3000
+  force_https           = true
+  auto_stop_machines    = true     # ประหยัด quota: หยุดเครื่องเมื่อไม่มี traffic
+  auto_start_machines   = true     # และปลุกอัตโนมัติเมื่อมี request
+  min_machines_running  = 0
+  processes             = ["app"]
+
+  # จำกัด concurrent connections ต่อ 1 machine
+  [http_service.concurrency]
+    type       = "connections"
+    hard_limit = 200
+    soft_limit = 100
+
+  # Health check ให้ Fly รู้ว่า app ยังมีชีวิต
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval     = "30s"
+    method       = "GET"
+    timeout      = "5s"
+    path         = "/health"
+
+# ---------- VM size (free tier) ----------
+[[vm]]
+  size   = "shared-cpu-1x"
+  memory = "256mb"
+  cpus   = 1

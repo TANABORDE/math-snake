@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Math Snake</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ปุ่มสลับภาษา + เสียง (มุมขวาบน) -->
+  <button id="muteToggle" class="mute-toggle" type="button" aria-label="เปิด/ปิดเสียง" title="เปิด/ปิดเสียง">
+    <span id="muteIcon">🔊</span>
+  </button>
+  <button id="langToggle" class="lang-toggle" type="button" aria-label="เปลี่ยนภาษา">
+    <span data-i18n="lang.short">TH</span>
+  </button>
+
+  <!-- แถบสถานะการเชื่อมต่อ -->
+  <div id="connBadge" class="conn-badge conn-off">
+    <span class="dot"></span>
+    <span id="connText" data-i18n="conn.connecting">กำลังเชื่อมต่อ…</span>
+  </div>
+
+  <!-- พื้นหลังตกแต่ง -->
+  <div class="decor" aria-hidden="true">
+    <span class="decor-item d1">7</span>
+    <span class="decor-item d2">+</span>
+    <span class="decor-item d3">🐍</span>
+    <span class="decor-item d4">🪜</span>
+    <span class="decor-item d5">×</span>
+    <span class="decor-item d6">12</span>
+    <span class="decor-item d7">÷</span>
+    <span class="decor-item d8">3</span>
+    <span class="decor-item d9">🎲</span>
+  </div>
+
+  <!-- ============================================================
+       SCREEN: MENU
+       ============================================================ -->
+  <main class="screen" id="screen-menu">
+    <header class="brand">
+      <div class="logo" aria-hidden="true">
+        <span class="logo-snake">🐍</span>
+        <span class="logo-ladder">🪜</span>
+      </div>
+      <h1 class="title">
+        <span class="title-math" data-i18n="brand.math">MATH</span><span class="title-snake" data-i18n="brand.snake">SNAKE</span>
+      </h1>
+      <p class="tagline" data-i18n="brand.tagline">บันไดงู + คณิตศาสตร์ · เล่นได้สูงสุด 4 คน</p>
+    </header>
+
+    <section class="card name-card">
+      <label class="field-label" for="playerName" data-i18n="name.label">ชื่อผู้เล่นของคุณ</label>
+      <div class="name-row">
+        <input
+          id="playerName"
+          type="text"
+          maxlength="16"
+          autocomplete="off"
+          spellcheck="false"
+          data-i18n-attr="placeholder|name.placeholder"
+          placeholder="เช่น น้องแก้ม" />
+        <button id="btnRandomName" class="ghost-btn" type="button" title="สุ่มชื่อ">🎲</button>
+      </div>
+    </section>
+
+    <section class="actions">
+      <button id="btnCreate" class="primary-btn" type="button">
+        <span class="btn-icon">🛠️</span>
+        <span class="btn-text">
+          <span class="btn-title" data-i18n="menu.create.title">สร้างห้องใหม่</span>
+          <span class="btn-sub" data-i18n="menu.create.sub">ตั้งกติกาแล้วชวนเพื่อน</span>
+        </span>
+      </button>
+
+      <button id="btnJoin" class="primary-btn alt" type="button">
+        <span class="btn-icon">🔑</span>
+        <span class="btn-text">
+          <span class="btn-title" data-i18n="menu.join.title">เข้าห้องด้วยโค้ด</span>
+          <span class="btn-sub" data-i18n="menu.join.sub">ใส่โค้ด 4 ตัวจากเพื่อน</span>
+        </span>
+      </button>
+
+      <button id="btnHowTo" class="ghost-btn wide" type="button">
+        <span class="btn-icon">📖</span>
+        <span data-i18n="menu.howto">วิธีเล่น</span>
+      </button>
+    </section>
+
+    <footer class="foot">
+      <span data-i18n="foot.version">เวอร์ชัน 0.1 · prototype</span>
+      <span class="sep">·</span>
+      <a href="#" id="linkCredits" data-i18n="foot.credits">ทีมพัฒนา</a>
+    </footer>
+  </main>
+
+  <!-- ============================================================
+       SCREEN: LOBBY
+       ============================================================ -->
+  <main class="screen" id="screen-lobby" hidden>
+    <header class="lobby-head">
+      <button id="btnLeave" class="ghost-btn small" type="button" title="ออก">
+        ← <span data-i18n="lobby.leave">ออก</span>
+      </button>
+      <h2 data-i18n="lobby.title">ห้องเกม</h2>
+      <span></span>
+    </header>
+
+    <!-- Room code -->
+    <section class="card code-card">
+      <div class="field-label" data-i18n="lobby.code">โค้ดห้อง</div>
+      <div class="room-code" id="roomCode">····</div>
+      <button id="btnCopyCode" class="ghost-btn wide" type="button">
+        <span data-i18n="lobby.copy">📋 คัดลอกโค้ด</span>
+      </button>
+    </section>
+
+    <!-- Player slots -->
+    <section class="card">
+      <div class="field-label">
+        <span data-i18n="lobby.players">ผู้เล่น</span>
+        <span id="playerCount">1 / 4</span>
+      </div>
+      <ul id="playerList" class="player-list">
+        <!-- populated by JS -->
+      </ul>
+    </section>
+
+    <!-- Mode picker (host only) -->
+    <section class="card" id="modeCard">
+      <div class="field-label" data-i18n="lobby.mode">ขนาดกระดาน</div>
+      <div class="mode-picker" role="radiogroup">
+        <label class="mode-option">
+          <input type="radio" name="lobbyMode" value="50" checked />
+          <div class="mode-card">
+            <div class="mode-num">1–50</div>
+            <div class="mode-desc" data-i18n="create.mode50">เกมสั้น · เหมาะเริ่มต้น</div>
+          </div>
+        </label>
+        <label class="mode-option">
+          <input type="radio" name="lobbyMode" value="100" />
+          <div class="mode-card">
+            <div class="mode-num">1–100</div>
+            <div class="mode-desc" data-i18n="create.mode100">เกมเต็ม · สนุกจัด</div>
+          </div>
+        </label>
+      </div>
+      <p class="host-hint" id="hostHint" hidden data-i18n="lobby.hostHint">มีแค่ host ที่เปลี่ยนโหมดได้</p>
+    </section>
+
+    <!-- Start button (host only) -->
+    <button id="btnStart" class="primary-btn full" type="button" disabled>
+      <span class="btn-icon">🚀</span>
+      <span data-i18n="lobby.start">เริ่มเกม</span>
+    </button>
+    <p class="start-hint" id="startHint" data-i18n="lobby.waiting">รออย่างน้อย 2 คน · host กด "เริ่มเกม"</p>
+  </main>
+
+  <!-- ============================================================
+       SCREEN: GAME
+       ============================================================ -->
+  <main class="screen game-screen" id="screen-game" hidden>
+    <header class="game-head">
+      <button id="btnLeaveGame" class="ghost-btn small" type="button">
+        ← <span data-i18n="lobby.leave">ออก</span>
+      </button>
+      <div class="game-code" id="gameCode">····</div>
+      <div class="game-mode" id="gameMode">1-50</div>
+    </header>
+
+    <!-- Turn indicator -->
+    <div class="turn-banner" id="turnBanner">
+      <span class="turn-avatar" id="turnAvatar">?</span>
+      <div class="turn-text">
+        <div class="turn-name" id="turnName">—</div>
+        <div class="turn-sub"  id="turnSub" data-i18n="game.waiting">รอเริ่มเทิร์น…</div>
+      </div>
+      <div class="turn-countdown" id="turnCountdown" hidden>20</div>
+    </div>
+
+    <!-- Players + progress -->
+    <section class="card">
+      <div class="field-label">
+        <span data-i18n="game.progress">ความคืบหน้า</span>
+        <span id="gameGoal">→ 50</span>
+      </div>
+      <ul id="progressList" class="progress-list"></ul>
+    </section>
+
+    <!-- Canvas board -->
+    <section class="card board-canvas-card">
+      <div class="board-wrap">
+        <canvas id="boardCanvas"></canvas>
+      </div>
+    </section>
+
+    <!-- Inventory (แสดงเฉพาะตอนตัวเองมีของ + เป็นเทิร์นตัวเอง = ใช้ได้) -->
+    <section class="card inventory" id="inventoryCard" hidden>
+      <div class="field-label">
+        <span data-i18n="game.inventory">ไอเทมของคุณ</span>
+        <span id="invHint" class="inv-hint" data-i18n="game.invHintOff">รอถึงตาคุณจึงจะใช้ได้</span>
+      </div>
+      <div class="inv-items" id="invItems"></div>
+    </section>
+  </main>
+
+  <!-- ============================================================
+       Modal: QUESTION
+       ============================================================ -->
+  <div class="modal" id="modal-question" hidden>
+    <div class="modal-card question-card">
+      <!-- ปิดชั่วคราวเพื่อดูกระดาน (timer วิ่งต่อ) -->
+      <button class="modal-close q-close-btn" id="qClose" type="button" title="ปิดชั่วคราว (timer วิ่งต่อ)" aria-label="ปิดชั่วคราว">×</button>
+      <!-- Timer -->
+      <div class="q-timer">
+        <div class="q-timer-bar" id="qTimerBar"></div>
+        <div class="q-timer-text" id="qTimerText">20</div>
+      </div>
+
+      <!-- Header (whose turn) -->
+      <div class="q-turn" id="qTurn">—</div>
+
+      <!-- Question body: image OR text -->
+      <div class="q-body">
+        <img id="qImage" alt="" hidden />
+        <div id="qText" class="q-text"></div>
+      </div>
+
+      <!-- 3 choices -->
+      <div class="q-choices" id="qChoices">
+        <button type="button" data-idx="0"></button>
+        <button type="button" data-idx="1"></button>
+        <button type="button" data-idx="2"></button>
+      </div>
+
+      <p class="q-hint" id="qHint"></p>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Modal: RESULT (แสดงผลตอบสั้น ๆ)
+       ============================================================ -->
+  <div class="modal" id="modal-result" hidden>
+    <div class="modal-card result-card" id="resultCard">
+      <div class="result-icon" id="resultIcon">✓</div>
+      <div class="result-title" id="resultTitle">ตอบถูก!</div>
+      <div class="result-detail" id="resultDetail"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Modal: ITEM USE
+       ============================================================ -->
+  <div class="modal" id="modal-item" hidden>
+    <div class="modal-card">
+      <button class="modal-close" data-close aria-label="ปิด">×</button>
+      <div class="item-header">
+        <span class="item-big-icon" id="itemBigIcon">🛡️</span>
+        <div>
+          <h2 id="itemTitle">-</h2>
+          <p class="modal-sub" id="itemSub"></p>
+        </div>
+      </div>
+
+      <!-- direction picker (ticket only) -->
+      <div class="item-directions" id="itemDirections" hidden>
+        <button class="dir-btn" type="button" data-dir="forward">
+          <span class="dir-icon">→</span>
+          <span data-i18n="item.forward">เดินหน้า +3</span>
+        </button>
+        <button class="dir-btn" type="button" data-dir="backward">
+          <span class="dir-icon">←</span>
+          <span data-i18n="item.backward">ถอยหลัง −3</span>
+        </button>
+      </div>
+
+      <!-- target picker -->
+      <div class="item-targets-label" id="itemTargetsLabel" data-i18n="item.pickTarget" hidden>เลือกเป้าหมาย</div>
+      <div class="item-targets" id="itemTargets"></div>
+
+      <button id="btnItemConfirm" class="primary-btn full" type="button" disabled>
+        <span data-i18n="item.confirm">ใช้ไอเทม</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Modal: GAME OVER
+       ============================================================ -->
+  <div class="modal" id="modal-gameover" hidden>
+    <div class="modal-card wide">
+      <div class="winner-crown">👑</div>
+      <h2 class="winner-title" data-i18n="over.title">ผู้ชนะ!</h2>
+      <div class="winner-name" id="winnerName">—</div>
+      <p class="winner-sub" id="winnerReason"></p>
+
+      <div class="over-actions">
+        <button id="btnPlayAgain" class="primary-btn full" type="button">
+          <span class="btn-icon">🔁</span>
+          <span data-i18n="over.again">เล่นอีกครั้ง</span>
+        </button>
+        <button id="btnBackMenu" class="ghost-btn wide" type="button">
+          <span data-i18n="over.menu">กลับหน้าเมนู</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Modal: JOIN
+       ============================================================ -->
+  <div class="modal" id="modal-join" hidden>
+    <div class="modal-card">
+      <button class="modal-close" data-close aria-label="ปิด">×</button>
+      <h2 data-i18n="join.title">เข้าห้องด้วยโค้ด</h2>
+      <p class="modal-sub" data-i18n="join.sub">พิมพ์โค้ด 4 ตัวอักษรที่ได้รับจากเพื่อน</p>
+
+      <div class="code-input" id="codeInput">
+        <input inputmode="latin" maxlength="1" autocomplete="off" />
+        <input inputmode="latin" maxlength="1" autocomplete="off" />
+        <input inputmode="latin" maxlength="1" autocomplete="off" />
+        <input inputmode="latin" maxlength="1" autocomplete="off" />
+      </div>
+      <p class="join-error" id="joinError" hidden data-i18n="join.error">โค้ดไม่ครบ 4 ตัว</p>
+
+      <button id="btnJoinConfirm" class="primary-btn alt full" type="button">
+        <span class="btn-icon">🚪</span>
+        <span data-i18n="join.confirm">เข้าห้อง</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Modal: HOW TO
+       ============================================================ -->
+  <div class="modal" id="modal-howto" hidden>
+    <div class="modal-card wide">
+      <button class="modal-close" data-close aria-label="ปิด">×</button>
+      <h2 data-i18n="howto.title">วิธีเล่น</h2>
+      <ol class="howto-list">
+        <li><span class="howto-icon">🎯</span><div>
+          <b data-i18n="howto.1.t">เดินไปให้ถึงช่องสุดท้าย</b>
+          <p data-i18n="howto.1.b">คนแรกที่ไปหยุด <b>ช่อง 50 หรือ 100 พอดี</b> เป็นผู้ชนะ</p>
+        </div></li>
+        <li><span class="howto-icon">🧮</span><div>
+          <b data-i18n="howto.2.t">แทนลูกเต๋าด้วยโจทย์คณิต</b>
+          <p data-i18n="howto.2.b">แต่ละเทิร์นจะได้โจทย์ + <b>3 ตัวเลือก</b> · ตอบถูก = เดินหน้า · ตอบผิด = <b>ถอยหลัง</b></p>
+        </div></li>
+        <li><span class="howto-icon">⏱️</span><div>
+          <b data-i18n="howto.3.t">มีเวลา 1 นาที</b>
+          <p data-i18n="howto.3.b">ตัดสินใจให้ดี ๆ ไม่งั้นถอยเอา 😅</p>
+        </div></li>
+        <li><span class="howto-icon">🐍🪜</span><div>
+          <b data-i18n="howto.4.t">งู & บันได</b>
+          <p data-i18n="howto.4.b">หยุดหัวงู = ตกลงล่าง · หยุดปลายบันได = ปีนขึ้น</p>
+        </div></li>
+        <li><span class="howto-icon">🎁</span><div>
+          <b data-i18n="howto.5.t">ช่องพิเศษ = ได้ไอเทม</b>
+          <p data-i18n="howto.5.b">🛡️ โล่ · 🎫 ตั๋วสั่งเดิน · ⛔ กับดัก</p>
+        </div></li>
+      </ol>
+      <button class="primary-btn full" data-close type="button">
+        <span data-i18n="howto.ok">เข้าใจแล้ว!</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Floating "peek question" button (แสดงเมื่อปิด modal โจทย์แต่ยัง active) -->
+  <button id="qPeek" class="q-peek" type="button" hidden>
+    <span class="q-peek-icon">📝</span>
+    <span class="q-peek-label" data-i18n="game.peek">ดูโจทย์</span>
+    <span class="q-peek-timer" id="qPeekTimer">20</span>
+  </button>
+
+  <!-- Toast -->
+  <div id="toast" class="toast" hidden></div>
+
+  <!-- Socket.IO client (เสิร์ฟโดย socket.io server อัตโนมัติ) -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="constants.js"></script>
+  <script src="i18n.js"></script>
+  <script src="sfx.js"></script>
+  <script src="net.js"></script>
+  <script src="menu.js"></script>
+  <script src="board.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
