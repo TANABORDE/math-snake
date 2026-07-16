@@ -18,8 +18,8 @@ const NET = {
     this.socket = io({
       transports: ['websocket'],
       reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
+      reconnectionDelay: 200,
+      reconnectionDelayMax: 2000,
     });
 
     this.socket.on('connect', () => {
@@ -31,6 +31,11 @@ const NET = {
       this.isConnected = false;
       console.log('[net] disconnected:', reason);
       this.listeners.disconnect.forEach(fn => fn(reason));
+      
+      // หากเซิร์ฟเวอร์สั่งตัด หรือเชื่อมต่อหลุด ให้สั่งเชื่อมต่อใหม่ทันทีโดยไม่ต้องรอดีเลย์ยาว
+      if (reason === 'io server disconnect' || reason === 'transport close') {
+        this.socket.connect();
+      }
     });
     this.socket.on('connect_error', (err) => {
       console.warn('[net] connect_error:', err.message);
