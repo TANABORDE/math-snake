@@ -302,8 +302,27 @@
      ========================================================= */
   NET.connect();
   NET.onConnect(() => {
+    const oldId = state.myId;
     state.myId = NET.socket.id;
     setConn('on');
+
+    if (state.room && oldId && oldId !== state.myId) {
+      console.log(`[net] Reconnecting. Rejoining room ${state.room.code} (old ID: ${oldId})`);
+      NET.emit('rejoinRoom', { code: state.room.code, oldId, name: state.myName })
+        .then(res => {
+          state.room = res.snapshot;
+          toast(I18N.lang === 'th' ? 'เชื่อมต่อห้องเล่นใหม่สำเร็จ ✓' : 'Reconnected to room successfully ✓', 'success');
+          if (state.room.phase === 'LOBBY') {
+            renderLobby();
+          }
+        })
+        .catch(err => {
+          console.warn('[net] Rejoin failed:', err.message);
+          state.room = null;
+          showScreen('menu');
+          toast(I18N.lang === 'th' ? 'เชื่อมต่อใหม่ล้มเหลว (อาจหมดเวลารอ)' : 'Reconnection failed (timeout)', 'error');
+        });
+    }
   });
   NET.onDisconnect(() => {
     setConn('off');

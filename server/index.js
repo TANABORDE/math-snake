@@ -10,20 +10,20 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { RoomManager } from './game/RoomManager.js';
-import { GameLoop }    from './game/GameLoop.js';
+import { GameLoop } from './game/GameLoop.js';
 import { count as questionCount } from './game/questions.js';
 import { EVENTS, NAME_MAX, PHASE, MIN_PLAYERS } from '../shared/constants.js';
 
-const __dirname   = path.dirname(fileURLToPath(import.meta.url));
-const CLIENT_DIR  = path.resolve(__dirname, '..', 'client');
-const PORT        = Number(process.env.PORT) || 3000;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const CLIENT_DIR = path.resolve(__dirname, '..', 'client');
+const PORT = Number(process.env.PORT) || 3000;
 
-const app        = express();
+const app = express();
 const httpServer = createServer(app);
-const io         = new IOServer(httpServer, {
+const io = new IOServer(httpServer, {
   cors: { origin: '*' },        // TODO: จำกัด origin ตอน prod จริง
   pingInterval: 20000,
-  pingTimeout:  25000,
+  pingTimeout: 45000,
 });
 
 // ---------- HTTP ----------
@@ -109,11 +109,11 @@ io.on('connection', (socket) => {
   // ---- startGame ----
   socket.on(EVENTS.START_GAME, (_payload, ack) => {
     const room = rooms.forSocket(socket.id);
-    if (!room)                                return ack?.({ ok: false, error: 'not_in_room' });
-    if (room.hostId !== socket.id)            return ack?.({ ok: false, error: 'host_only' });
-    if (room.players.length < MIN_PLAYERS)    return ack?.({ ok: false, error: 'need_more_players' });
-    if (room.phase !== PHASE.LOBBY)           return ack?.({ ok: false, error: 'already_started' });
-    if (questionCount() === 0)                return ack?.({ ok: false, error: 'no_questions' });
+    if (!room) return ack?.({ ok: false, error: 'not_in_room' });
+    if (room.hostId !== socket.id) return ack?.({ ok: false, error: 'host_only' });
+    if (room.players.length < MIN_PLAYERS) return ack?.({ ok: false, error: 'need_more_players' });
+    if (room.phase !== PHASE.LOBBY) return ack?.({ ok: false, error: 'already_started' });
+    if (questionCount() === 0) return ack?.({ ok: false, error: 'no_questions' });
 
     room.game = new GameLoop(room, io);
     room.game.start();   // จะ emit 'gameStarted' + เริ่มเทิร์นแรกให้เอง
@@ -126,7 +126,7 @@ io.on('connection', (socket) => {
   socket.on(EVENTS.SUBMIT_ANSWER, (payload, ack) => {
     try {
       const room = rooms.forSocket(socket.id);
-      if (!room)      throw new Error('not_in_room');
+      if (!room) throw new Error('not_in_room');
       if (!room.game) throw new Error('game_not_started');
       room.game.submitAnswer(socket.id, payload?.choiceIndex);
       ack?.({ ok: true });
@@ -139,7 +139,7 @@ io.on('connection', (socket) => {
   socket.on(EVENTS.USE_ITEM, (payload, ack) => {
     try {
       const room = rooms.forSocket(socket.id);
-      if (!room)      throw new Error('not_in_room');
+      if (!room) throw new Error('not_in_room');
       if (!room.game) throw new Error('game_not_started');
       room.game.useItem(socket.id, payload || {});
       ack?.({ ok: true });
@@ -151,14 +151,34 @@ io.on('connection', (socket) => {
   // ---- restartGame (host only, หลังจบเกม → กลับ LOBBY) ----
   socket.on('restartGame', (_payload, ack) => {
     const room = rooms.forSocket(socket.id);
-    if (!room)                       return ack?.({ ok: false, error: 'not_in_room' });
-    if (room.hostId !== socket.id)   return ack?.({ ok: false, error: 'host_only' });
+    if (!room) return ack?.({ ok: false, error: 'not_in_room' });
+    if (room.hostId !== socket.id) return ack?.({ ok: false, error: 'host_only' });
     if (room.phase !== PHASE.GAME_OVER) return ack?.({ ok: false, error: 'not_finished' });
 
     room.resetToLobby();
     ack?.({ ok: true });
     broadcastRoom(room, 'roomReset', { snapshot: room.publicSnapshot() });
     console.log(`[room] ${room.code} reset to lobby`);
+  });
+
+  // ---- rejoinRoom ----
+  socket.on('rejoinRoom', (payload, ack) => {
+    try {
+      const code = sanitizeCode(payload?.code);
+      const oldId = payload?.oldId;
+      const name = sanitizeName(payload?.name);
+
+      const room = rooms.rejoin(code, oldId, socket.id, name);
+      socket.join(room.code);
+
+      ack?.({ ok: true, snapshot: room.publicSnapshot() });
+      broadcastRoom(room, EVENTS.BOARD_UPDATE, {
+        players: room.publicSnapshot().players,
+      });
+      console.log(`[room] ${name} rejoined ${room.code} (new socket: ${socket.id})`);
+    } catch (e) {
+      ack?.({ ok: false, error: e.message });
+    }
   });
 
   // ---- leaveRoom ----
@@ -175,13 +195,40 @@ function handleLeave(socket, source) {
   const room = rooms.forSocket(socket.id);
   if (!room) return;
 
-  // แจ้ง GameLoop ก่อน remove เพื่อให้จัดการเทิร์นถูกต้อง
-  const wasPlaying = (room.phase === PHASE.PLAYING) && !!room.game;
   const leftId = socket.id;
 
-  const res = rooms.removeSocket(socket.id);
+  if (source === 'disconnect' && room.phase === PHASE.PLAYING) {
+    const player = room.players.find(p => p.id === leftId);
+    if (player) {
+      player.connected = false;
+      broadcastRoom(room, EVENTS.BOARD_UPDATE, {
+        players: room.publicSnapshot().players,
+      });
+      console.log(`[room] ${player.name} temporarily disconnected. Waiting 15s to reconnect...`);
+    }
+
+    setTimeout(() => {
+      const currentRoom = rooms.rooms.get(room.code);
+      if (!currentRoom) return;
+
+      const p = currentRoom.players.find(x => x.name === player?.name);
+      if (p && !p.connected) {
+        console.log(`[room] Reconnect timeout for ${p.name}. Removing permanently.`);
+        performActualRemove(p.id, currentRoom);
+      }
+    }, 15000);
+  } else {
+    performActualRemove(leftId, room);
+    if (source === 'leave') socket.leave(room.code);
+  }
+}
+
+function performActualRemove(socketId, room) {
+  const wasPlaying = (room.phase === PHASE.PLAYING) && !!room.game;
+  const leftId = socketId;
+
+  const res = rooms.removeSocket(socketId);
   if (!res) return;
-  if (source === 'leave') socket.leave(res.room.code);
 
   if (!res.destroyed) {
     broadcastRoom(res.room, EVENTS.PLAYER_LEFT, {
@@ -192,7 +239,6 @@ function handleLeave(socket, source) {
       res.room.game.onPlayerLeft(leftId);
     }
   } else if (wasPlaying) {
-    // ห้องถูกทำลาย → หยุด game loop
     room.game?.stop();
   }
 }

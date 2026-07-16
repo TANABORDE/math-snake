@@ -122,6 +122,33 @@ export class RoomManager {
     return room;
   }
 
+  rejoin(code, oldId, newId, name) {
+    const room = this.rooms.get(code);
+    if (!room) throw new Error('room_not_found');
+
+    const player = room.players.find(p => p.id === oldId || p.name === name);
+    if (!player) throw new Error('not_in_room');
+
+    const previousId = player.id;
+    player.id = newId;
+    player.connected = true;
+
+    if (room.hostId === previousId) {
+      room.hostId = newId;
+    }
+
+    this.socketRoom.delete(previousId);
+    this.socketRoom.set(newId, code);
+
+    if (room.game) {
+      if (room.game.currentTurnId === previousId) {
+        room.game.currentTurnId = newId;
+      }
+    }
+
+    return room;
+  }
+
   forSocket(socketId) {
     const code = this.socketRoom.get(socketId);
     return code ? this.rooms.get(code) : null;
