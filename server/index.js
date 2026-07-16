@@ -37,6 +37,7 @@ app.use(express.static(CLIENT_DIR, {
 
 // ---------- Rooms ----------
 const rooms = new RoomManager();
+const disconnectTimeouts = new Map(); // "roomCode_playerName" -> Timeout
 
 function sanitizeName(raw) {
   const s = String(raw ?? '').trim().slice(0, NAME_MAX);
@@ -171,6 +172,13 @@ io.on('connection', (socket) => {
       const room = rooms.rejoin(code, oldId, socket.id, name);
       socket.join(room.code);
 
+      // ล้าง timeout การหลุดเชื่อมต่อ
+      const key = `${room.code}_${name}`;
+      if (disconnectTimeouts.has(key)) {
+        clearTimeout(disconnectTimeouts.get(key));
+        disconnectTimeouts.delete(key);
+      }
+
       ack?.({ ok: true, snapshot: room.publicSnapshot() });
       broadcastRoom(room, EVENTS.BOARD_UPDATE, {
         players: room.publicSnapshot().players,
@@ -197,26 +205,37 @@ function handleLeave(socket, source) {
 
   const leftId = socket.id;
 
-  if (source === 'disconnect' && room.phase === PHASE.PLAYING) {
+  if (source === 'disconnect') {
     const player = room.players.find(p => p.id === leftId);
     if (player) {
       player.connected = false;
+      
+      // แจ้งอัปเดตผู้เล่นหลุด
       broadcastRoom(room, EVENTS.BOARD_UPDATE, {
         players: room.publicSnapshot().players,
       });
       console.log(`[room] ${player.name} temporarily disconnected. Waiting 15s to reconnect...`);
-    }
 
-    setTimeout(() => {
-      const currentRoom = rooms.rooms.get(room.code);
-      if (!currentRoom) return;
-
-      const p = currentRoom.players.find(x => x.name === player?.name);
-      if (p && !p.connected) {
-        console.log(`[room] Reconnect timeout for ${p.name}. Removing permanently.`);
-        performActualRemove(p.id, currentRoom);
+      // ตั้ง timeout การลบผู้เล่นออกถาวร
+      const key = `${room.code}_${player.name}`;
+      if (disconnectTimeouts.has(key)) {
+        clearTimeout(disconnectTimeouts.get(key));
       }
-    }, 15000);
+
+      const timeout = setTimeout(() => {
+        disconnectTimeouts.delete(key);
+        const currentRoom = rooms.rooms.get(room.code);
+        if (!currentRoom) return;
+
+        const p = currentRoom.players.find(x => x.name === player?.name);
+        if (p && !p.connected) {
+          console.log(`[room] Reconnect timeout for ${p.name}. Removing permanently.`);
+          performActualRemove(p.id, currentRoom);
+        }
+      }, 15000);
+      
+      disconnectTimeouts.set(key, timeout);
+    }
   } else {
     performActualRemove(leftId, room);
     if (source === 'leave') socket.leave(room.code);
