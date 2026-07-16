@@ -16,6 +16,7 @@ const NET = {
     // io() มาจาก /socket.io/socket.io.js
     // eslint-disable-next-line no-undef
     this.socket = io({
+      transports: ['websocket'],
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
