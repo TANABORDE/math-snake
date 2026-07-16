@@ -4,7 +4,7 @@
 #
 
 app = 'math-snake'
-primary_region = 'ams'
+primary_region = 'sin'
 
 [build]
 
