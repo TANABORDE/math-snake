@@ -39,6 +39,9 @@ export const NAME_MAX    = 16;
 export const BOARD_MODES = [50, 100];
 export const DEFAULT_MODE = 50;
 
+export const QUESTION_TOPICS = ['limit_function', 'limit_sequence', 'all'];
+export const DEFAULT_QUESTION_TOPIC = 'all';
+
 export const ITEM_TYPES = ['shield', 'ticket', 'trap'];
 export const MAX_ITEMS = 3;
 export const TICKET_STEPS = 3;   // เดินไปด้านที่เลือก 3 ช่อง

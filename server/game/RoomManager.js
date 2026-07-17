@@ -5,6 +5,7 @@
 
 import {
   MAX_PLAYERS, CODE_LENGTH, PHASE, BOARD_MODES, DEFAULT_MODE,
+  QUESTION_TOPICS, DEFAULT_QUESTION_TOPIC,
 } from '../../shared/constants.js';
 import { getBoard } from './boards.js';
 
@@ -23,8 +24,9 @@ class Room {
   constructor(code, hostId) {
     this.code    = code;
     this.hostId  = hostId;
-    this.phase   = PHASE.LOBBY;
-    this.mode    = DEFAULT_MODE;
+    this.phase          = PHASE.LOBBY;
+    this.mode           = DEFAULT_MODE;
+    this.questionTopic  = DEFAULT_QUESTION_TOPIC;
     this.players = []; // { id, name, position, items, skipTurns, shielded, connected }
     this.winnerId = null;
     this.game    = null;              // GameLoop instance ตอน phase=PLAYING
@@ -59,12 +61,18 @@ class Room {
     this.mode = mode;
   }
 
+  setQuestionTopic(topic) {
+    if (!QUESTION_TOPICS.includes(topic)) throw new Error('invalid_topic');
+    this.questionTopic = topic;
+  }
+
   publicSnapshot() {
     return {
-      code:     this.code,
-      phase:    this.phase,
-      mode:     this.mode,
-      hostId:   this.hostId,
+      code:          this.code,
+      phase:         this.phase,
+      mode:          this.mode,
+      questionTopic: this.questionTopic,
+      hostId:        this.hostId,
       winnerId: this.winnerId,
       currentTurn: this.game?.currentTurnId ?? null,
       board:    getBoard(this.mode),
@@ -171,6 +179,14 @@ export class RoomManager {
     if (!room) throw new Error('not_in_room');
     if (room.hostId !== socketId) throw new Error('host_only');
     room.setMode(mode);
+    return room;
+  }
+
+  setQuestionTopic(socketId, topic) {
+    const room = this.forSocket(socketId);
+    if (!room) throw new Error('not_in_room');
+    if (room.hostId !== socketId) throw new Error('host_only');
+    room.setQuestionTopic(topic);
     return room;
   }
 

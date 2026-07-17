@@ -148,6 +148,35 @@
       <p class="host-hint" id="hostHint" hidden data-i18n="lobby.hostHint">มีแค่ host ที่เปลี่ยนโหมดได้</p>
     </section>
 
+    <!-- Question topic picker (host only) -->
+    <section class="card" id="topicCard">
+      <div class="field-label" data-i18n="lobby.topic">หัวข้อโจทย์</div>
+      <div class="mode-picker topic-picker" role="radiogroup">
+        <label class="mode-option">
+          <input type="radio" name="lobbyTopic" value="all" checked />
+          <div class="mode-card">
+            <div class="mode-num">📚</div>
+            <div class="mode-desc" data-i18n="topic.all">รวมทั้งหมด</div>
+          </div>
+        </label>
+        <label class="mode-option">
+          <input type="radio" name="lobbyTopic" value="limit_function" />
+          <div class="mode-card">
+            <div class="mode-num">𝑓(𝑥)</div>
+            <div class="mode-desc" data-i18n="topic.limit_function">ลิมิตของฟังก์ชัน</div>
+          </div>
+        </label>
+        <label class="mode-option">
+          <input type="radio" name="lobbyTopic" value="limit_sequence" />
+          <div class="mode-card">
+            <div class="mode-num">𝑎ₙ</div>
+            <div class="mode-desc" data-i18n="topic.limit_sequence">ลิมิตของลำดับ</div>
+          </div>
+        </label>
+      </div>
+      <p class="host-hint" id="topicHostHint" hidden data-i18n="lobby.hostHint">มีแค่ host ที่เปลี่ยนโหมดได้</p>
+    </section>
+
     <!-- Start button (host only) -->
     <button id="btnStart" class="primary-btn full" type="button" disabled>
       <span class="btn-icon">🚀</span>

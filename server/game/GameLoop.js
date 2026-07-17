@@ -142,7 +142,7 @@ export class GameLoop {
     }
 
     // สุ่มโจทย์
-    this.currentQuestion = pickRandom(this.usedIds);
+    this.currentQuestion = pickRandom(this.usedIds, this.room.questionTopic);
     if (!this.currentQuestion) {
       console.error('[game] no questions available');
       this.stop();

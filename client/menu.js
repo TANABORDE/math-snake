@@ -241,6 +241,14 @@
     });
     $('hostHint').hidden = isHost;
 
+    // topic picker (host only)
+    const topicInputs = document.querySelectorAll('input[name="lobbyTopic"]');
+    topicInputs.forEach(inp => {
+      inp.checked  = (inp.value === (r.questionTopic || 'all'));
+      inp.disabled = !isHost;
+    });
+    $('topicHostHint').hidden = isHost;
+
     // start button
     const canStart = isHost && r.players.length >= 2;
     const btn = $('btnStart');
@@ -285,6 +293,19 @@
       const mode = Number(inp.value);
       try {
         await NET.emit('setMode', { mode });
+      } catch (e) {
+        toast(I18N.err(e.message), 'error');
+      }
+    });
+  });
+
+  document.querySelectorAll('input[name="lobbyTopic"]').forEach(inp => {
+    inp.addEventListener('change', async () => {
+      if (!state.room) return;
+      if (state.room.hostId !== state.myId) return;
+      const topic = inp.value;
+      try {
+        await NET.emit('setQuestionTopic', { topic });
       } catch (e) {
         toast(I18N.err(e.message), 'error');
       }
@@ -348,6 +369,12 @@
   NET.on('modeChanged', (payload) => {
     if (!state.room) return;
     state.room.mode = payload.mode;
+    renderLobby();
+  });
+
+  NET.on('topicChanged', (payload) => {
+    if (!state.room) return;
+    state.room.questionTopic = payload.questionTopic;
     renderLobby();
   });
 

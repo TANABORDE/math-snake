@@ -1,12 +1,242 @@
 [
-  { "id": "q_lim01", "image": "questions/q_lim01.jpg", "choices": [3, 1, 5], "answerIndex": 1, "topic": "limit", "difficulty": 3 },
-  { "id": "q_lim02", "image": "questions/q_lim02.jpg", "choices": [2, 5, 4], "answerIndex": 0, "topic": "limit", "difficulty": 3 },
-  { "id": "q_lim03", "image": "questions/q_lim03.jpg", "choices": [4, 6, 3], "answerIndex": 2, "topic": "limit", "difficulty": 3 },
-  { "id": "q_lim04", "image": "questions/q_lim04.jpg", "choices": [4, 2, 8], "answerIndex": 0, "topic": "limit", "difficulty": 3 },
-  { "id": "q_lim05", "image": "questions/q_lim05.jpg", "choices": [3, 7, 5], "answerIndex": 2, "topic": "limit", "difficulty": 3 },
-  { "id": "q_lim06", "image": "questions/q_lim06.jpg", "choices": [8, 6, 4], "answerIndex": 1, "topic": "limit", "difficulty": 3 },
-  { "id": "q_lim07", "image": "questions/q_lim07.jpg", "choices": [4, 6, 1], "answerIndex": 2, "topic": "limit", "difficulty": 3 },
-  { "id": "q_lim08", "image": "questions/q_lim08.jpg", "choices": [6, 2, 3], "answerIndex": 1, "topic": "limit", "difficulty": 3 },
-  { "id": "q_lim09", "image": "questions/q_lim09.jpg", "choices": [4, 7, 2], "answerIndex": 0, "topic": "limit", "difficulty": 3 },
-  { "id": "q_lim10", "image": "questions/q_lim10.jpg", "choices": [5, 3, 2], "answerIndex": 2, "topic": "limit", "difficulty": 3 }
+  {
+    "id": "q_seq01",
+    "image": "questions/ลิมิตของลำดับ/q_lim01.jpg",
+    "choices": [
+      3,
+      1,
+      5
+    ],
+    "answerIndex": 1,
+    "topic": "limit_sequence",
+    "difficulty": 3
+  },
+  {
+    "id": "q_seq02",
+    "image": "questions/ลิมิตของลำดับ/q_lim02.jpg",
+    "choices": [
+      2,
+      5,
+      4
+    ],
+    "answerIndex": 0,
+    "topic": "limit_sequence",
+    "difficulty": 3
+  },
+  {
+    "id": "q_seq03",
+    "image": "questions/ลิมิตของลำดับ/q_lim03.jpg",
+    "choices": [
+      4,
+      6,
+      3
+    ],
+    "answerIndex": 2,
+    "topic": "limit_sequence",
+    "difficulty": 3
+  },
+  {
+    "id": "q_seq04",
+    "image": "questions/ลิมิตของลำดับ/q_lim04.jpg",
+    "choices": [
+      4,
+      2,
+      8
+    ],
+    "answerIndex": 0,
+    "topic": "limit_sequence",
+    "difficulty": 3
+  },
+  {
+    "id": "q_seq05",
+    "image": "questions/ลิมิตของลำดับ/q_lim05.jpg",
+    "choices": [
+      3,
+      7,
+      5
+    ],
+    "answerIndex": 2,
+    "topic": "limit_sequence",
+    "difficulty": 3
+  },
+  {
+    "id": "q_seq06",
+    "image": "questions/ลิมิตของลำดับ/q_lim06.jpg",
+    "choices": [
+      8,
+      6,
+      4
+    ],
+    "answerIndex": 1,
+    "topic": "limit_sequence",
+    "difficulty": 3
+  },
+  {
+    "id": "q_seq07",
+    "image": "questions/ลิมิตของลำดับ/q_lim07.jpg",
+    "choices": [
+      4,
+      6,
+      1
+    ],
+    "answerIndex": 2,
+    "topic": "limit_sequence",
+    "difficulty": 3
+  },
+  {
+    "id": "q_seq08",
+    "image": "questions/ลิมิตของลำดับ/q_lim08.jpg",
+    "choices": [
+      6,
+      2,
+      3
+    ],
+    "answerIndex": 1,
+    "topic": "limit_sequence",
+    "difficulty": 3
+  },
+  {
+    "id": "q_seq09",
+    "image": "questions/ลิมิตของลำดับ/q_lim09.jpg",
+    "choices": [
+      4,
+      7,
+      2
+    ],
+    "answerIndex": 0,
+    "topic": "limit_sequence",
+    "difficulty": 3
+  },
+  {
+    "id": "q_seq10",
+    "image": "questions/ลิมิตของลำดับ/q_lim10.jpg",
+    "choices": [
+      5,
+      3,
+      2
+    ],
+    "answerIndex": 2,
+    "topic": "limit_sequence",
+    "difficulty": 3
+  },
+  {
+    "id": "q_func01",
+    "image": "questions/ลิมิตของฟังก์ชัน/ตอบ_1_.jpg",
+    "choices": [
+      1,
+      3,
+      5
+    ],
+    "answerIndex": 0,
+    "topic": "limit_function",
+    "difficulty": 3
+  },
+  {
+    "id": "q_func02",
+    "image": "questions/ลิมิตของฟังก์ชัน/ตอบ_2_.jpg",
+    "choices": [
+      4,
+      2,
+      6
+    ],
+    "answerIndex": 1,
+    "topic": "limit_function",
+    "difficulty": 3
+  },
+  {
+    "id": "q_func03",
+    "image": "questions/ลิมิตของฟังก์ชัน/ตอบ_2__.jpg",
+    "choices": [
+      2,
+      5,
+      3
+    ],
+    "answerIndex": 0,
+    "topic": "limit_function",
+    "difficulty": 3
+  },
+  {
+    "id": "q_func04",
+    "image": "questions/ลิมิตของฟังก์ชัน/ตอบ_3_.jpg",
+    "choices": [
+      1,
+      5,
+      3
+    ],
+    "answerIndex": 2,
+    "topic": "limit_function",
+    "difficulty": 3
+  },
+  {
+    "id": "q_func05",
+    "image": "questions/ลิมิตของฟังก์ชัน/ตอบ_3__.jpg",
+    "choices": [
+      3,
+      7,
+      4
+    ],
+    "answerIndex": 0,
+    "topic": "limit_function",
+    "difficulty": 3
+  },
+  {
+    "id": "q_func06",
+    "image": "questions/ลิมิตของฟังก์ชัน/ตอบ_3___.jpg",
+    "choices": [
+      6,
+      3,
+      8
+    ],
+    "answerIndex": 1,
+    "topic": "limit_function",
+    "difficulty": 3
+  },
+  {
+    "id": "q_func07",
+    "image": "questions/ลิมิตของฟังก์ชัน/ตอบ_5_.jpg",
+    "choices": [
+      5,
+      2,
+      7
+    ],
+    "answerIndex": 0,
+    "topic": "limit_function",
+    "difficulty": 3
+  },
+  {
+    "id": "q_func08",
+    "image": "questions/ลิมิตของฟังก์ชัน/ตอบ_5__.jpg",
+    "choices": [
+      3,
+      5,
+      1
+    ],
+    "answerIndex": 1,
+    "topic": "limit_function",
+    "difficulty": 3
+  },
+  {
+    "id": "q_func09",
+    "image": "questions/ลิมิตของฟังก์ชัน/ตอบ_6_.jpg",
+    "choices": [
+      4,
+      8,
+      6
+    ],
+    "answerIndex": 2,
+    "topic": "limit_function",
+    "difficulty": 3
+  },
+  {
+    "id": "q_func10",
+    "image": "questions/ลิมิตของฟังก์ชัน/ตอบ_6__.jpg",
+    "choices": [
+      6,
+      2,
+      9
+    ],
+    "answerIndex": 0,
+    "topic": "limit_function",
+    "difficulty": 3
+  }
 ]

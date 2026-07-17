@@ -487,6 +487,17 @@ body { min-height: 100dvh; }
 .mode-desc { font-size: 0.82rem; color: var(--text); margin: 4px 0 0; }
 .mode-time { font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; }
 
+/* 3-column variant for question topic picker */
+.topic-picker {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.topic-picker .mode-card {
+  padding: 14px 8px;
+}
+.topic-picker .mode-num {
+  font-size: 1.3rem;
+}
+
 /* ==============================
    Code input (join)
    ============================== */

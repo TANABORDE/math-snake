@@ -107,6 +107,18 @@ io.on('connection', (socket) => {
     }
   });
 
+  // ---- setQuestionTopic (host เลือกหัวข้อโจทย์ใน lobby) ----
+  socket.on('setQuestionTopic', (payload, ack) => {
+    try {
+      const topic = String(payload?.topic || '');
+      const room = rooms.setQuestionTopic(socket.id, topic);
+      broadcastRoom(room, 'topicChanged', { questionTopic: room.questionTopic });
+      ack?.({ ok: true, questionTopic: room.questionTopic });
+    } catch (e) {
+      ack?.({ ok: false, error: e.message });
+    }
+  });
+
   // ---- startGame ----
   socket.on(EVENTS.START_GAME, (_payload, ack) => {
     const room = rooms.forSocket(socket.id);

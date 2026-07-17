@@ -29,10 +29,16 @@ try {
   ALL = [];
 }
 
-export function pickRandom(excludeIds = []) {
+export function pickRandom(excludeIds = [], topic = 'all') {
   if (ALL.length === 0) return null;
-  const pool = ALL.filter(q => !excludeIds.includes(q.id));
-  const list = pool.length > 0 ? pool : ALL;
+  // กรองตาม topic (ถ้าไม่ใช่ 'all')
+  let base = ALL;
+  if (topic && topic !== 'all') {
+    base = ALL.filter(q => q.topic === topic);
+    if (base.length === 0) base = ALL; // fallback ถ้าไม่มีข้อในหัวข้อนั้น
+  }
+  const pool = base.filter(q => !excludeIds.includes(q.id));
+  const list = pool.length > 0 ? pool : base;
   return list[Math.floor(Math.random() * list.length)];
 }
 

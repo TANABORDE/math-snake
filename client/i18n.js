@@ -30,6 +30,11 @@ const DICT = {
     "create.mode50":  "เกมสั้น · เหมาะเริ่มต้น",
     "create.mode100": "เกมเต็ม · สนุกจัด",
 
+    "lobby.topic":         "หัวข้อโจทย์",
+    "topic.all":           "รวมทั้งหมด",
+    "topic.limit_function":"ลิมิตของฟังก์ชัน",
+    "topic.limit_sequence": "ลิมิตของลำดับ",
+
     "join.title":   "เข้าห้องด้วยโค้ด",
     "join.sub":     "พิมพ์โค้ด 4 ตัวอักษรที่ได้รับจากเพื่อน",
     "join.error":   "โค้ดไม่ครบ 4 ตัว",
@@ -167,6 +172,11 @@ const DICT = {
 
     "create.mode50":  "Quick game · great for beginners",
     "create.mode100": "Full game · maximum fun",
+
+    "lobby.topic":         "Question Topic",
+    "topic.all":           "All Topics",
+    "topic.limit_function":"Limit of Functions",
+    "topic.limit_sequence": "Limit of Sequences",
 
     "join.title":   "Join with Code",
     "join.sub":     "Type the 4-letter code your friend shared",
